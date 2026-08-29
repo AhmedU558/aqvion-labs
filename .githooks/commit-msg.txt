@@ -1,0 +1,6 @@
+#!/bin/sh
+
+sed -i '/^Co-Authored-By: Claude/d' "$1"
+sed -i '/^Co-Authored-By: Claude Code/d' "$1"
+sed -i '/^Co-Authored-By: Claude Sonnet/d' "$1"
+sed -i '/^Co-Authored-By: Anthropic/d' "$1"

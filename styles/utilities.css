@@ -1,0 +1,100 @@
+/* ==========================================================================
+   AQVION LABS — UTILITIES
+   A deliberately small set. Each one encodes a decision that would otherwise
+   be re-typed (and drift) across components.
+   ========================================================================== */
+
+/* Brand gradient applied to text. Reserve for one or two words per screen. */
+@utility text-gradient {
+  background-image: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* Descenders get clipped without a little breathing room. */
+  padding-block: 0.06em;
+}
+
+@utility text-gradient-cyan {
+  background-image: var(--gradient-brand-cyan);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-block: 0.06em;
+}
+
+/* The standard section divider: a 1px rule that fades out at both ends. */
+@utility hairline {
+  height: 1px;
+  width: 100%;
+  border: 0;
+  background-image: var(--gradient-hairline);
+  opacity: 0.5;
+}
+
+/* Elevated glass panel — dark, bordered, with an inner top highlight. */
+@utility panel {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+}
+
+/* Monospace technical label: eyebrows, section numbers, categories. */
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  letter-spacing: var(--text-label--letter-spacing);
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
+/* Engineering grid. Sits behind content at very low contrast. */
+@utility grid-lines {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--color-border-strong) 60%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--color-border-strong) 60%, transparent) 1px, transparent 1px);
+  background-size: 72px 72px;
+}
+
+/* Fades an element out towards an edge — used to dissolve grids and glows
+   rather than cutting them off with a hard line. */
+@utility mask-fade-b {
+  mask-image: linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%);
+}
+@utility mask-fade-t {
+  mask-image: linear-gradient(to top, #000 0%, #000 55%, transparent 100%);
+}
+@utility mask-fade-radial {
+  mask-image: radial-gradient(ellipse at center, #000 0%, #000 42%, transparent 78%);
+}
+
+/* A 1px gradient border, drawn without a wrapper element. */
+@utility border-gradient {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--gradient-brand);
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+/* Vertical rhythm for a full-width section. */
+@utility section-y {
+  padding-block: var(--spacing-section-sm);
+  @media (width >= 768px) {
+    padding-block: var(--spacing-section);
+  }
+}

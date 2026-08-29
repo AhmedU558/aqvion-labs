@@ -1,0 +1,8 @@
+/* AQVION LABS — global stylesheet entry point.
+   Order matters: Tailwind first, then tokens, base, utilities. */
+@import "tailwindcss";
+
+@import "../styles/tokens.css";
+@import "../styles/base.css";
+@import "../styles/utilities.css";
+@import "../styles/hero.css";

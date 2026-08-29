@@ -1,0 +1,187 @@
+/* ==========================================================================
+   AQVION LABS — DESIGN TOKENS
+   --------------------------------------------------------------------------
+   Single source of truth for the visual system.
+
+   Every palette value below is sampled directly from the official AQVION mark
+   (public/brand/aqvion-mark.png) so the interface and the logo share one
+   colour space. Do not introduce ad-hoc hex values in components.
+
+   Tailwind v4 reads the `@theme` block and generates both the utility classes
+   (bg-surface, text-muted, border-border, …) and the matching CSS custom
+   properties on :root (var(--color-surface), …).
+   ========================================================================== */
+
+@theme {
+  /* ---------------------------------------------------------------- CANVAS */
+  /* Near-black navy. The logo's outer field is pure black; the site sits a
+     fraction above it so the mark never reads as a floating square.          */
+  --color-background: #04060d;
+  --color-background-secondary: #070b14;
+
+  /* Sampled from the interior of the logo disc (#0b1121).                    */
+  --color-surface: #0a0f1b;
+  --color-surface-elevated: #101725;
+
+  /* ------------------------------------------------------------------ INK */
+  --color-foreground: #f2f5fa;
+  --color-muted: #8b95a9;
+  --color-muted-strong: #b4bdcd;
+  --color-faint: #5a6478;
+
+  /* Metallic silver — the extruded "A" in the mark.                          */
+  --color-silver: #c9d0dd;
+  --color-silver-bright: #ffffff;
+
+  /* --------------------------------------------------------------- BORDERS */
+  --color-border: #1a2131;
+  --color-border-strong: #27314a;
+  --color-border-glow: #2b4bd8;
+
+  /* ----------------------------------------------------------------- BRAND */
+  /* Ring gradient, read clockwise from the lower-left of the mark.           */
+  --color-primary: #1552f0;        /* electric blue   (ring @150°, #124de9)  */
+  --color-primary-bright: #2f7cff; /* inner slab      (#126df6)              */
+  --color-primary-deep: #0a2fa8;
+
+  --color-indigo: #4b32e8;         /* ring @60–90°    (#5827e4 / #402fe4)    */
+
+  --color-secondary: #8b4ff8;      /* violet, ring @30° (#9a4ff8)            */
+  --color-secondary-bright: #b98cff;
+
+  --color-accent: #2fb8ff;         /* cyan dots       (#27b5ff)              */
+  --color-accent-bright: #7beefd;  /* cyan specular   (#77ecfd)              */
+
+  /* Glow hue. Used for shadows and radial washes, never for large fills.     */
+  --color-glow: #2453ee;
+
+  /* ------------------------------------------------------------ TYPOGRAPHY */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SFMono-Regular",
+    "Cascadia Mono", Menlo, Consolas, monospace;
+
+  /* Architectural display scale. Tight leading, negative tracking.           */
+  --text-display: clamp(2.75rem, 1.2rem + 6.4vw, 6.5rem);
+  --text-display--line-height: 0.94;
+  --text-display--letter-spacing: -0.04em;
+
+  --text-h1: clamp(2.25rem, 1.1rem + 4.6vw, 4.25rem);
+  --text-h1--line-height: 1;
+  --text-h1--letter-spacing: -0.035em;
+
+  --text-h2: clamp(1.875rem, 1.1rem + 2.8vw, 3rem);
+  --text-h2--line-height: 1.06;
+  --text-h2--letter-spacing: -0.03em;
+
+  --text-h3: clamp(1.375rem, 1rem + 1.2vw, 1.875rem);
+  --text-h3--line-height: 1.18;
+  --text-h3--letter-spacing: -0.02em;
+
+  --text-lead: clamp(1.0625rem, 0.98rem + 0.4vw, 1.3125rem);
+  --text-lead--line-height: 1.6;
+  --text-lead--letter-spacing: -0.011em;
+
+  /* Monospace metadata: section numbers, eyebrows, technical labels.         */
+  --text-label: 0.6875rem;
+  --text-label--line-height: 1;
+  --text-label--letter-spacing: 0.18em;
+
+  --text-meta: 0.8125rem;
+  --text-meta--line-height: 1.5;
+  --text-meta--letter-spacing: 0.01em;
+
+  /* ---------------------------------------------------------------- RADIUS */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+
+  /* --------------------------------------------------------------- SPACING */
+  /* Tailwind's 0.25rem step is kept. These are the editorial rhythm values.  */
+  --spacing-gutter: 1.5rem;
+  --spacing-section: 7.5rem;
+  --spacing-section-sm: 4.5rem;
+
+  /* --------------------------------------------------------------- SHADOWS */
+  --shadow-glow: 0 0 0 1px color-mix(in oklab, var(--color-glow) 22%, transparent),
+    0 12px 48px -12px color-mix(in oklab, var(--color-glow) 45%, transparent);
+  --shadow-glow-strong: 0 0 0 1px color-mix(in oklab, var(--color-glow) 40%, transparent),
+    0 0 28px -6px color-mix(in oklab, var(--color-glow) 55%, transparent),
+    0 20px 64px -16px color-mix(in oklab, var(--color-glow) 55%, transparent);
+  --shadow-panel: 0 1px 0 0 color-mix(in oklab, var(--color-silver) 6%, transparent) inset,
+    0 24px 64px -32px #000000;
+
+  /* ---------------------------------------------------------------- MOTION */
+  /* One easing family. "Precise" is the default for UI state changes;
+     "flow" is for entrances; "activate" carries a small amount of lift.      */
+  --ease-precise: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-flow: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-activate: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --duration-instant: 120ms;
+  --duration-fast: 180ms;
+  --duration-base: 320ms;
+  --duration-slow: 620ms;
+  /* Matches the 2.67s loop of the reference logo animation
+     (brand-reference/aqvion-logo-animation.gif, 48 frames @ ~18fps).        */
+  --duration-sweep: 2670ms;
+
+  --animate-sweep: sweep var(--duration-sweep) linear infinite;
+  --animate-drift: drift 18s var(--ease-precise) infinite alternate;
+}
+
+/* --------------------------------------------------------------------------
+   Semantic aliases.
+   Short names for use inside hand-written CSS and inline gradients. These are
+   pointers, never independent values.
+   -------------------------------------------------------------------------- */
+:root {
+  --background: var(--color-background);
+  --background-secondary: var(--color-background-secondary);
+  --surface: var(--color-surface);
+  --surface-elevated: var(--color-surface-elevated);
+  --foreground: var(--color-foreground);
+  --muted: var(--color-muted);
+  --border: var(--color-border);
+  --primary: var(--color-primary);
+  --secondary: var(--color-secondary);
+  --accent: var(--color-accent);
+  --glow: var(--color-glow);
+
+  /* ---- Gradient system --------------------------------------------------
+     Three gradients only. The brand gradient is an accent: it belongs on
+     hairlines, small marks and text spans — not on large surfaces.          */
+  --gradient-brand: linear-gradient(
+    100deg,
+    var(--color-primary) 0%,
+    var(--color-indigo) 46%,
+    var(--color-secondary) 100%
+  );
+  --gradient-brand-cyan: linear-gradient(
+    100deg,
+    var(--color-accent) 0%,
+    var(--color-primary) 45%,
+    var(--color-secondary) 100%
+  );
+  /* Hairline that fades out at both ends — the default section divider.     */
+  --gradient-hairline: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklab, var(--color-primary) 55%, transparent) 30%,
+    color-mix(in oklab, var(--color-secondary) 55%, transparent) 70%,
+    transparent 100%
+  );
+
+  /* Page shell metrics */
+  --nav-height: 4.5rem;
+  --container-max: 80rem; /* 1280px content field inside a 1440px viewport */
+}
+
+@media (min-width: 768px) {
+  :root {
+    --nav-height: 5.25rem;
+  }
+}

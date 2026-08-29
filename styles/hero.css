@@ -1,0 +1,534 @@
+/* ==========================================================================
+   AQVION LABS — HERO
+   --------------------------------------------------------------------------
+   Two things live here that cannot live in a component:
+
+   1. The composition of the Intelligence Field, whose layers are positioned
+      relative to the emblem at every breakpoint. The canvas reads the emblem's
+      measured box, so CSS stays the single source of truth for the layout.
+
+   2. The activation sequence. It is driven entirely by an attribute set on
+      <html> before first paint, so the hero copy is never held at opacity 0
+      waiting for React. No attribute — no animation, content visible.
+   ========================================================================== */
+
+/* --------------------------------------------------------------- headline -- */
+
+.hero-headline {
+  font-size: clamp(2.5rem, 1.4rem + 4.4vw, 4.5rem);
+  line-height: 1.04;
+  letter-spacing: -0.038em;
+  font-weight: 500;
+  /* Measured in em, so the line structure holds as the type scales. */
+  max-width: 9.7em;
+  text-wrap: pretty;
+}
+
+/* Between 1024 and 1279 the copy shares the width with the emblem, so the type
+   steps down to hold the headline at four lines instead of six. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .hero-headline {
+    font-size: clamp(2.75rem, 5.9vw, 3.75rem);
+  }
+}
+
+/* Short phones: buy back vertical space rather than letting the copy spill. */
+@media (max-height: 720px) and (max-width: 640px) {
+  .hero-headline {
+    font-size: 2.25rem;
+    line-height: 1.06;
+  }
+}
+
+/* ------------------------------------------------------------ hero rhythm --
+   Vertical padding is height-aware. A 1024x768 laptop has 684px of usable
+   height once the navbar is subtracted, which is not enough for desktop
+   spacing — so short viewports get a tighter measure rather than pushing the
+   calls to action below the fold. */
+
+.hero-body {
+  padding-block: 3.5rem;
+}
+
+@media (min-width: 640px) {
+  .hero-body {
+    padding-block: 4rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-body {
+    padding-block: 5rem;
+  }
+}
+
+@media (min-width: 1024px) and (max-height: 860px) {
+  .hero-body {
+    padding-block: 2.75rem;
+  }
+}
+
+/* Short phones (375x667 and similar). Tighter rhythm, and the emblem drops to
+   the very bottom-right so it never sits behind the translucent secondary
+   button — which would show a blurred smudge through it. */
+@media (max-width: 640px) and (max-height: 740px) {
+  .hero-body {
+    padding-block: 2.5rem;
+  }
+}
+
+/* ------------------------------------------------------------------ field -- */
+
+.hero-field {
+  position: absolute;
+  inset-inline: 0;
+  /* Extends up behind the transparent navbar so the field is full-bleed. */
+  top: calc(-1 * var(--nav-height));
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  contain: layout paint;
+
+  /* Focus of the composition. Overridden per breakpoint alongside the emblem. */
+  --field-x: 74%;
+  --field-y: 78%;
+}
+
+/* Layer 2 — technical substrate. Two grids: a coarse one that carries the
+   architecture, and a fine one that only registers as texture. */
+.hero-field__grid {
+  position: absolute;
+  inset: -2%;
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--color-border-strong) 62%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--color-border-strong) 62%, transparent) 1px, transparent 1px);
+  background-size: 104px 104px;
+  mask-image: radial-gradient(
+    115% 105% at var(--field-x) var(--field-y),
+    #000 0%,
+    rgba(0, 0, 0, 0.55) 38%,
+    rgba(0, 0, 0, 0.18) 62%,
+    transparent 84%
+  );
+  will-change: transform;
+}
+
+.hero-field__grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--color-border) 80%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--color-border) 80%, transparent) 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(52% 52% at var(--field-x) var(--field-y), #000 0%, transparent 72%);
+  opacity: 0.6;
+}
+
+/* Layers 3–5 — the canvases. The mask keeps the paths almost invisible where
+   they pass beneath the headline, and dissolves them at the frame edges. */
+.hero-field__plane {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+  mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 16%, #000 84%, transparent 100%),
+    linear-gradient(
+      to bottom,
+      transparent 4%,
+      rgba(0, 0, 0, 0.16) 30%,
+      rgba(0, 0, 0, 0.72) 58%,
+      #000 76%
+    );
+  mask-composite: intersect;
+  -webkit-mask-composite: source-in;
+}
+
+.hero-field__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+/* ----------------------------------------------------------------- emblem -- */
+
+.hero-field__emblem {
+  position: absolute;
+  right: 5%;
+  /* Sits clear of the stacked calls to action, which run full width. */
+  bottom: 6.5%;
+  width: clamp(104px, 29vw, 140px);
+  aspect-ratio: 1;
+}
+
+.hero-field__emblem-inner {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+/* The mark itself. Never filtered, recoloured, cropped or reproportioned. */
+.hero-field__mark {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Surrounding illumination. A radial gradient rather than a blurred box — the
+   falloff is identical and it costs nothing to paint. */
+.hero-field__halo {
+  position: absolute;
+  inset: -46%;
+  z-index: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in oklab, var(--color-primary) 22%, transparent) 0%,
+    color-mix(in oklab, var(--color-indigo) 13%, transparent) 30%,
+    color-mix(in oklab, var(--color-secondary) 6%, transparent) 50%,
+    transparent 72%
+  );
+  animation: halo-breathe 7.5s var(--ease-precise) infinite alternate;
+}
+
+@keyframes halo-breathe {
+  from {
+    opacity: 0.72;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Activation elements. Inert unless the intro is running. */
+.hero-field__spark,
+.hero-field__scan,
+.hero-field__sweep {
+  opacity: 0;
+}
+
+.hero-field__spark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: var(--color-accent-bright);
+  box-shadow: 0 0 14px 3px color-mix(in oklab, var(--color-accent) 65%, transparent);
+}
+
+/* The expanding scan ring. Transform and opacity only, so activation is a
+   compositor job — this is what replaced an animated blur. */
+.hero-field__scan {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklab, var(--color-accent) 60%, transparent);
+  transform: scale(0.08);
+}
+
+.hero-field__scan--b {
+  border-color: color-mix(in oklab, var(--color-secondary) 55%, transparent);
+}
+
+/* Light sweep across the metallic surfaces of the mark. Clipped inside the
+   disc so it never spills onto the page.
+
+   `overlay` rather than `screen`: overlay brightens light areas and leaves dark
+   ones alone, so the highlight catches the silver "A" and the ring while the
+   dark interior of the disc stays dark. Screen lifted the whole disc into a
+   visible grey block. */
+.hero-field__sweep {
+  position: absolute;
+  inset: 3%;
+  z-index: 4;
+  border-radius: 50%;
+  overflow: hidden;
+  mix-blend-mode: overlay;
+}
+
+.hero-field__sweep::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: -80%;
+  width: 62%;
+  transform: translate3d(0, 0, 0);
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.5) 34%,
+    rgba(190, 245, 255, 0.72) 50%,
+    rgba(255, 255, 255, 0.5) 66%,
+    transparent 100%
+  );
+}
+
+@media (max-width: 640px) and (max-height: 740px) {
+  .hero-field__emblem {
+    width: 96px;
+    right: 4%;
+    bottom: 2%;
+  }
+}
+
+/* ------------------------------------------------------------ breakpoints -- */
+
+@media (min-width: 768px) {
+  .hero-field {
+    --field-x: 76%;
+    --field-y: 72%;
+  }
+  .hero-field__emblem {
+    right: 8%;
+    bottom: 13%;
+    width: 196px;
+  }
+  .hero-field__grid {
+    background-size: 120px 120px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-field {
+    --field-x: 77%;
+    --field-y: 50%;
+  }
+  .hero-field__emblem {
+    right: auto;
+    bottom: auto;
+    left: 79%;
+    top: 51%;
+    translate: -50% -50%;
+    width: 176px;
+  }
+  /* On wide viewports the paths run in from the left, under the headline. */
+  .hero-field__plane {
+    mask-image:
+      linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%),
+      linear-gradient(
+        to right,
+        transparent 4%,
+        rgba(0, 0, 0, 0.1) 30%,
+        rgba(0, 0, 0, 0.42) 54%,
+        #000 70%
+      );
+    mask-composite: intersect;
+    -webkit-mask-composite: source-in;
+  }
+}
+
+@media (min-width: 1280px) {
+  .hero-field {
+    --field-x: 72%;
+  }
+  .hero-field__emblem {
+    left: 73%;
+    width: 236px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .hero-field {
+    --field-x: 71%;
+  }
+  .hero-field__emblem {
+    left: 71%;
+    width: 276px;
+  }
+}
+
+/* ==========================================================================
+   ACTIVATION SEQUENCE
+   --------------------------------------------------------------------------
+   Runs once per session. The whole timeline is declared here so it can be read
+   top to bottom:
+
+     0.02s  a single point of light
+     0.30s  scan rings expand — technical geometry appears
+     0.34s  the grid resolves
+     0.42s  structures, paths and nodes come up
+     0.68s  the emblem resolves
+     0.95s  a controlled light sweep crosses the mark
+     0.95s  headline and supporting copy follow
+     1.76s  system status and scroll cue settle in
+
+   Ends at ~2.0s.
+   ========================================================================== */
+
+@keyframes hero-step {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hero-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes hero-spark {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  32% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes hero-scan {
+  0% {
+    opacity: 0;
+    transform: scale(0.08);
+  }
+  14% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(3.4);
+  }
+}
+
+@keyframes hero-emblem {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hero-sweep {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+  }
+  14% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    /* Just enough to carry the highlight clear of the far edge of the disc. */
+    transform: translate3d(330%, 0, 0);
+  }
+}
+
+html[data-hero-intro="run"] {
+  .hero-field__grid {
+    animation: hero-fade 0.76s var(--ease-flow) 0.34s both;
+  }
+
+  .hero-field__plane {
+    animation: hero-fade 0.83s var(--ease-flow) 0.42s both;
+  }
+
+  .hero-field__mark,
+  .hero-field__halo {
+    animation: hero-emblem 0.64s var(--ease-flow) 0.68s both;
+  }
+
+  .hero-field__spark {
+    animation: hero-spark 0.5s var(--ease-precise) 0.02s both;
+  }
+
+  .hero-field__scan--a {
+    animation: hero-scan 0.85s var(--ease-flow) 0.3s both;
+  }
+
+  .hero-field__scan--b {
+    animation: hero-scan 0.99s var(--ease-flow) 0.46s both;
+  }
+
+  .hero-field__sweep {
+    opacity: 0;
+  }
+
+  /* Linear: a light sweep travels at a constant rate. */
+  .hero-field__sweep::before {
+    animation: hero-sweep 1.05s linear 0.95s both;
+  }
+
+  [data-hero-step] {
+    animation: hero-step 0.72s var(--ease-flow) both;
+  }
+
+  [data-hero-step="eyebrow"] {
+    animation-delay: 0.95s;
+  }
+  [data-hero-step="headline"] {
+    animation-delay: 1.05s;
+  }
+  [data-hero-step="copy"] {
+    animation-delay: 1.22s;
+  }
+  [data-hero-step="actions"] {
+    animation-delay: 1.38s;
+  }
+  [data-hero-step="status"] {
+    animation-delay: 1.62s;
+  }
+  [data-hero-step="scroll"] {
+    animation-delay: 1.76s;
+  }
+}
+
+/* The sweep container is only made visible by its own child's animation, so it
+   is opted back in while the intro runs. */
+html[data-hero-intro="run"] .hero-field__sweep {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------- scroll indicator */
+
+@keyframes cue-travel {
+  0% {
+    transform: translate3d(0, -100%, 0);
+    opacity: 0;
+  }
+  22% {
+    opacity: 1;
+  }
+  78% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 240%, 0);
+    opacity: 0;
+  }
+}
+
+.scroll-cue__bead {
+  animation: cue-travel 2.6s var(--ease-precise) infinite;
+}
