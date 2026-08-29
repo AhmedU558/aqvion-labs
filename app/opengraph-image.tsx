@@ -73,7 +73,7 @@ export default async function OpenGraphImage() {
               maxWidth: 940,
             }}
           >
-            AI, automation and software engineering for organisations building something serious.
+            AI, automation and software engineering for organizations building something serious.
           </div>
           <div
             style={{

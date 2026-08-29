@@ -71,6 +71,7 @@ export function Navbar() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
+                    prefetch={prefetchFor(item.href)}
                     aria-current={isActive(item.href) ? "page" : undefined}
                     className={cn(
                       "group relative inline-flex h-9 items-center rounded-md px-3.5 text-sm",

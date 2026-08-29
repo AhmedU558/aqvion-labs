@@ -1,9 +1,30 @@
 import type { Metadata, Viewport } from "next";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
-import { siteConfig } from "@/data/site";
+import { brandAssets, siteConfig } from "@/data/site";
 import { fontVariables } from "@/lib/fonts";
 import "./globals.css";
+
+/**
+ * Organization structured data.
+ *
+ * Deliberately thin. Contact details, social profiles, founders, headcount and
+ * clients are all still placeholders in data/site.ts, and a knowledge-graph
+ * entry is the worst possible place to guess: every field here is either the
+ * company's own name, its real positioning copy, or the official mark. Omitted
+ * is better than invented, and each field can be added as the company supplies
+ * it.
+ */
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: siteConfig.name,
+  alternateName: siteConfig.shortName,
+  url: siteConfig.url,
+  logo: new URL(brandAssets.mark, siteConfig.url).toString(),
+  description: siteConfig.description,
+  slogan: siteConfig.tagline,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -88,6 +109,15 @@ if(!seen)document.documentElement.setAttribute('data-hero-intro','run')
         <noscript>
           <style>{`[data-reveal]{opacity:1!important;transform:none!important}`}</style>
         </noscript>
+
+        {/* A native <script> rather than next/script: this is data, not code to
+            execute. `<` is escaped because JSON.stringify does not sanitise it. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
       </head>
       <body className="min-h-dvh antialiased">
         <a

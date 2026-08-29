@@ -32,12 +32,17 @@ export function Reveal({
   const reduceMotion = useReducedMotion();
   const MotionTag = motion[as as "div"] ?? motion.div;
 
+  /* Same element and the same forwarded props as the animated branch — only the
+     entrance is dropped. Rendering the motion tag here rather than a plain one
+     is what keeps the two branches in step: `rest` is typed against it, so
+     callers cannot silently lose an id, style or ARIA attribute just because
+     the visitor prefers reduced motion. With no variants there is nothing to
+     animate, so the element is a passthrough. */
   if (reduceMotion) {
-    const Tag = as as ElementType;
     return (
-      <Tag data-reveal className={className}>
+      <MotionTag data-reveal className={cn(className)} {...rest}>
         {children}
-      </Tag>
+      </MotionTag>
     );
   }
 

@@ -111,7 +111,6 @@
     rgba(0, 0, 0, 0.18) 62%,
     transparent 84%
   );
-  will-change: transform;
 }
 
 .hero-field__grid::before {
@@ -131,7 +130,6 @@
 .hero-field__plane {
   position: absolute;
   inset: 0;
-  will-change: transform;
   mask-image:
     linear-gradient(to bottom, transparent 0%, #000 16%, #000 84%, transparent 100%),
     linear-gradient(
@@ -165,7 +163,19 @@
 .hero-field__emblem-inner {
   position: absolute;
   inset: 0;
-  will-change: transform;
+}
+
+/* The three parallax layers, promoted only under the conditions in which
+   parallax actually runs. IntelligenceField gates its transform writes on the
+   identical query, so outside it these layers never move — and a permanent
+   `will-change` would hold compositor memory for two full-viewport layers on
+   exactly the devices least able to spare it. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .hero-field__grid,
+  .hero-field__plane,
+  .hero-field__emblem-inner {
+    will-change: transform;
+  }
 }
 
 /* The mark itself. Never filtered, recoloured, cropped or reproportioned. */
@@ -471,8 +481,10 @@ html[data-hero-intro="run"] {
     animation: hero-scan 0.99s var(--ease-flow) 0.46s both;
   }
 
+  /* The container is opted back in for the duration of the intro; the visible
+     timing is owned entirely by its child's animation below. */
   .hero-field__sweep {
-    opacity: 0;
+    opacity: 1;
   }
 
   /* Linear: a light sweep travels at a constant rate. */
@@ -502,12 +514,6 @@ html[data-hero-intro="run"] {
   [data-hero-step="scroll"] {
     animation-delay: 1.76s;
   }
-}
-
-/* The sweep container is only made visible by its own child's animation, so it
-   is opted back in while the intro runs. */
-html[data-hero-intro="run"] .hero-field__sweep {
-  opacity: 1;
 }
 
 /* --------------------------------------------------------- scroll indicator */
