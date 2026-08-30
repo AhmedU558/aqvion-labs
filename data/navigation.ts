@@ -1,3 +1,4 @@
+import { capabilities } from "./solutions";
 import { siteConfig } from "./site";
 
 export type NavLink = {
@@ -11,17 +12,37 @@ export type NavLink = {
 
 /** Primary navigation. Five destinations — an enterprise IA, not a link dump. */
 export const primaryNav: NavLink[] = [
-  { label: "Services", href: "/services", built: false },
-  { label: "Work", href: "/work", built: false },
-  { label: "Approach", href: "/approach", built: false },
-  { label: "Insights", href: "/insights", built: false },
-  { label: "Company", href: "/company", built: false },
+  { label: "Services", href: "/services", built: true },
+  { label: "Approach", href: "/approach", built: true },
+  { label: "Work", href: "/work", built: true },
+  { label: "Insights", href: "/insights", built: true },
+  { label: "Company", href: "/company", built: true },
 ];
+
+/**
+ * The Services mega-menu.
+ *
+ * Built from the capability data so a new capability appears here, on
+ * /services, in the footer and in the sitemap from one edit — there is no
+ * second list to keep in step.
+ */
+export const servicesMenu: NavLink[] = capabilities.map((capability) => ({
+  label: capability.title,
+  href: `/services/${capability.id}`,
+  description: capability.description,
+  built: true,
+}));
+
+export const servicesOverview: NavLink = {
+  label: "All capabilities",
+  href: "/services",
+  built: true,
+};
 
 export const primaryCta: NavLink = {
   label: "Start a project",
   href: "/contact",
-  built: false,
+  built: true,
 };
 
 export type FooterColumn = {
@@ -36,31 +57,31 @@ export const footerNav: FooterColumn[] = [
     index: "01",
     heading: "Capabilities",
     links: [
-      { label: "AI Engineering", href: "/services/ai-engineering", built: false },
-      { label: "Intelligent Automation", href: "/services/automation", built: false },
-      { label: "Software Engineering", href: "/services/software-engineering", built: false },
-      { label: "Data Platforms", href: "/services/data-platforms", built: false },
-      { label: "Cloud Infrastructure", href: "/services/cloud-infrastructure", built: false },
-      { label: "Digital Products", href: "/services/digital-products", built: false },
+      { label: "AI & Intelligent Systems", href: "/services/ai", built: true },
+      { label: "Intelligent Automation", href: "/services/automation", built: true },
+      { label: "Software Engineering", href: "/services/software", built: true },
+      { label: "Data & AI Engineering", href: "/services/data", built: true },
+      { label: "Cloud & Infrastructure", href: "/services/cloud", built: true },
+      { label: "Digital Products", href: "/services/products", built: true },
     ],
   },
   {
     index: "02",
     heading: "Company",
     links: [
-      { label: "About", href: "/company", built: false },
-      { label: "Approach", href: "/approach", built: false },
+      { label: "About", href: "/company", built: true },
+      { label: "Approach", href: "/approach", built: true },
       { label: "Careers", href: "/careers", built: false },
-      { label: "Contact", href: "/contact", built: false },
+      { label: "Contact", href: "/contact", built: true },
     ],
   },
   {
     index: "03",
     heading: "Resources",
     links: [
-      { label: "Insights", href: "/insights", built: false },
+      { label: "Insights", href: "/insights", built: true },
       { label: "Engineering Notes", href: "/insights/engineering", built: false },
-      { label: "Work", href: "/work", built: false },
+      { label: "Work", href: "/work", built: true },
     ],
   },
 ];
@@ -90,5 +111,8 @@ const allRoutes: NavLink[] = [
 
 export function prefetchFor(href: string): false | undefined {
   if (href === "/" || href.startsWith("#")) return undefined;
-  return allRoutes.find((route) => route.href === href)?.built ? undefined : false;
+  const path = href.split("#")[0];
+  return allRoutes.some((route) => route.built && route.href.split("#")[0] === path)
+    ? undefined
+    : false;
 }

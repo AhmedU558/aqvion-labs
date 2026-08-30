@@ -1,7 +1,10 @@
 /**
  * Derives the brand raster set from the single supplied master file.
  *
- *   public/brand/aqvion-mark.png   <- SOURCE OF TRUTH, never modified
+ *   brand-reference/aqvion-mark-master.png   <- SOURCE OF TRUTH, never modified
+ *
+ * The master lives outside public/ so it is not deployed or crawlable; only
+ * the derivatives below are served.
  *
  * Everything else is a mechanical derivative: the artwork is only scaled, or
  * has its surrounding black field knocked out to transparency. No geometry,
@@ -14,7 +17,7 @@
 import sharp from "sharp";
 import { mkdir } from "node:fs/promises";
 
-const SRC = "public/brand/aqvion-mark.png";
+const SRC = "brand-reference/aqvion-mark-master.png";
 const OUT = "public/brand";
 
 // Measured from the master: the disc is centred at 627,627 with the outer edge
@@ -38,7 +41,7 @@ const alpha = await sharp(SRC)
   .png({ compressionLevel: 9 })
   .toBuffer();
 
-await sharp(alpha).toFile(`${OUT}/aqvion-mark-alpha.png`);
+await sharp(alpha).toFile("brand-reference/aqvion-mark-master-alpha.png");
 
 // 2. Delivery sizes. next/image handles responsive resizing at runtime, so
 //    these exist for contexts that cannot use it (OG art, manifests, email).

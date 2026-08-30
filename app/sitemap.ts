@@ -16,7 +16,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const built = Array.from(
     new Map(
-      candidates.filter((route) => route.built).map((route) => [route.href, route]),
+      candidates
+        .filter((route) => route.built)
+        .map((route) => {
+          const path = route.href.split("#")[0];
+          return [path, { ...route, href: path }];
+        }),
     ).values(),
   );
 
@@ -31,7 +36,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${siteConfig.url}${route.href}`,
       lastModified,
       changeFrequency: "monthly" as const,
-      priority: route.href.startsWith("/services") ? 0.8 : 0.6,
+      priority:
+        route.href === "/services" ||
+        route.href === "/approach" ||
+        route.href === "/work" ||
+        route.href === "/company"
+          ? 0.8
+          : 0.6,
     })),
   ];
 }

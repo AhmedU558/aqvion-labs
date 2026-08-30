@@ -54,9 +54,11 @@ export const brandAssets = {
    * The official mark, exactly as supplied. This file is the source of truth:
    * it is never redrawn, re-typeset, re-proportioned or replaced with an icon.
    */
-  master: "/brand/aqvion-mark.png",
-  /** Identical artwork with the black field knocked out, for compositing. */
-  masterAlpha: "/brand/aqvion-mark-alpha.png",
+  /* The masters live in brand-reference/, outside public/ — they are 2.1 MB
+     between them and were never requested by the interface, so shipping and
+     exposing them served no purpose. They are inputs to
+     scripts/gen-brand-assets.mjs, not runtime assets. */
+  masterSource: "brand-reference/aqvion-mark-master.png",
   /**
    * Delivery size used across the interface. 512px is comfortably above 3x for
    * every place the mark appears in chrome, and keeps next/image's source

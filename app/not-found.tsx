@@ -21,6 +21,11 @@ import { prefetchFor } from "@/data/navigation";
  * No `metadata` export: Next.js only honours one from `global-not-found`, and
  * it already injects `noindex` for anything returning a 404.
  */
+export const metadata = {
+  title: "Page not found",
+  robots: { index: false, follow: true },
+};
+
 export default function NotFound() {
   return (
     <section

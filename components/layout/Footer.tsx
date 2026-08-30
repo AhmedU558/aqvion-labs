@@ -4,8 +4,10 @@ import { Glow } from "@/components/ui/Glow";
 import { GridBackground } from "@/components/ui/GridBackground";
 import { Logo } from "@/components/ui/Logo";
 import { Reveal } from "@/components/ui/Reveal";
+import { ContactValue } from "@/components/ui/ContactValue";
 import { footerNav, legalNav, prefetchFor, socialNav } from "@/data/navigation";
 import { isPlaceholder, siteConfig } from "@/data/site";
+import { cn } from "@/lib/utils";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -51,13 +53,17 @@ export function Footer() {
                   <ul className="mt-5 space-y-3">
                     {column.links.map((link) => (
                       <li key={link.href}>
-                        <Link
-                          href={link.href}
-                          prefetch={prefetchFor(link.href)}
-                          className="text-[0.875rem] text-muted transition-colors duration-[var(--duration-fast)] ease-[var(--ease-precise)] hover:text-foreground"
-                        >
-                          {link.label}
-                        </Link>
+                        {link.built === false ? (
+                          <PendingLink label={link.label} />
+                        ) : (
+                          <Link
+                            href={link.href}
+                            prefetch={prefetchFor(link.href)}
+                            className="inline-block py-1 text-[0.875rem] text-muted transition-colors duration-[var(--duration-fast)] ease-[var(--ease-precise)] hover:text-foreground focus-visible:outline-offset-4"
+                          >
+                            {link.label}
+                          </Link>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -118,13 +124,17 @@ export function Footer() {
           <ul className="flex flex-wrap gap-x-6 gap-y-2">
             {legalNav.map((link) => (
               <li key={link.href}>
-                <Link
-                  href={link.href}
-                  prefetch={prefetchFor(link.href)}
-                  className="font-mono text-[0.75rem] tracking-[0.02em] text-faint transition-colors duration-[var(--duration-fast)] hover:text-muted-strong"
-                >
-                  {link.label}
-                </Link>
+                {link.built === false ? (
+                  <PendingLink label={link.label} mono />
+                ) : (
+                  <Link
+                    href={link.href}
+                    prefetch={prefetchFor(link.href)}
+                    className="inline-block py-1.5 font-mono text-[0.75rem] tracking-[0.02em] text-faint transition-colors duration-[var(--duration-fast)] hover:text-muted-strong"
+                  >
+                    {link.label}
+                  </Link>
+                )}
               </li>
             ))}
           </ul>
@@ -135,29 +145,23 @@ export function Footer() {
 }
 
 /**
- * Renders a contact detail, or an unmistakable placeholder when the real value
- * has not been supplied yet. Nothing here is ever invented.
+ * A footer destination whose route does not exist yet.
+ *
+ * Rendered as plain text rather than a link: advertising a page in the global
+ * footer and landing the visitor on a 404 is worse than showing it is pending.
+ * Flip the route's `built` flag in data/navigation.ts and it becomes a real
+ * link, joins the sitemap and starts prefetching — all from that one edit.
  */
-function ContactValue({ label, value }: { label: string; value: string }) {
-  if (isPlaceholder(value)) {
-    return (
-      <p className="flex items-baseline gap-3">
-        <span className="w-14 shrink-0 font-mono text-[0.6875rem] tracking-[0.14em] text-faint uppercase">
-          {label}
-        </span>
-        <span className="rounded-xs border border-dashed border-border-strong px-2 py-0.5 font-mono text-[0.6875rem] tracking-[0.1em] text-faint">
-          AWAITING COMPANY DETAILS
-        </span>
-      </p>
-    );
-  }
-
+function PendingLink({ label, mono = false }: { label: string; mono?: boolean }) {
   return (
-    <p className="flex items-baseline gap-3">
-      <span className="w-14 shrink-0 font-mono text-[0.6875rem] tracking-[0.14em] text-faint uppercase">
-        {label}
-      </span>
-      <span className="text-muted">{value}</span>
-    </p>
+    <span
+      className={cn(
+        "inline-block text-faint",
+        mono ? "py-1.5 font-mono text-[0.75rem] tracking-[0.02em]" : "py-1 text-[0.875rem]",
+      )}
+    >
+      {label}
+      <span className="ml-1.5 font-mono text-[0.625rem] tracking-wider text-faint">[SOON]</span>
+    </span>
   );
 }

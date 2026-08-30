@@ -13,6 +13,8 @@ export type SectionHeadingProps = {
   action?: ReactNode;
   align?: "start" | "center";
   as?: "h1" | "h2" | "h3";
+  /** Forwarded to the heading element — used as the page's accessible name. */
+  headingId?: string;
   className?: string;
 };
 
@@ -28,6 +30,7 @@ export function SectionHeading({
   action,
   align = "start",
   as: Tag = "h2",
+  headingId,
   className,
 }: SectionHeadingProps) {
   const centered = align === "center";
@@ -63,7 +66,9 @@ export function SectionHeading({
         )}
 
         <Reveal delay={0.06}>
-          <Tag className={cn("mt-5 text-h2 text-foreground")}>{title}</Tag>
+          <Tag id={headingId} className={cn("mt-5 text-h2 text-foreground")}>
+            {title}
+          </Tag>
         </Reveal>
 
         {description && (

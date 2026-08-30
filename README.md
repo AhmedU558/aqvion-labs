@@ -183,6 +183,59 @@ above the fold is ever held at `opacity: 0` waiting for React.
 
 ---
 
+## Capability pages
+
+Six routes, one per capability, generated from `data/solutions.ts`:
+
+```
+/services            index of all six
+/services/ai         AI & Intelligent Systems
+/services/automation Intelligent Automation
+/services/software   Software Engineering
+/services/data       Data & AI Engineering
+/services/cloud      Cloud & Infrastructure
+/services/products   Digital Products
+```
+
+Adding or renaming a capability in `data/solutions.ts` updates the page, the
+`/services` index, the homepage Solutions section, the footer column, the
+Services mega-menu and the sitemap. There is no second list to keep in step.
+
+### Copy awaiting sign-off
+
+Everything on these pages is supplied AQVION copy **except** the one-line
+`summary` under each sub-capability in `data/solutions.ts`. The sub-capability
+*names* are the enumerations already present in each capability's supplied
+description; the summaries were written to describe what each discipline is.
+
+They attach no client, metric, outcome, timeline or guarantee to anything — but
+they are the only words on the site not supplied verbatim, so they should be
+read and approved or rewritten.
+
+---
+
+## Sample content — must be replaced before launch
+
+`data/proof.ts` holds the case studies, testimonials and company facts. **All of
+it is illustrative placeholder material**, not real AQVION LABS work:
+
+- Every organisation named is a canonical fictional company used industry-wide
+  for demo data — Contoso, Northwind, Fabrikam, Litware, Tailwind Traders.
+- Every person quoted is fictional.
+- Every figure in `companyFacts` is invented.
+
+While `SAMPLE_CONTENT` is `true`, each of those sections renders a visible
+notice telling the reader the content is not real. Forgetting to remove it
+leaves the notice showing rather than silently publishing invented client work.
+
+**To go live:** replace the arrays with real, permitted material, then set
+`SAMPLE_CONTENT` to `false`. Do not set it to `false` while any placeholder
+content remains — attributing work to a company you have not worked for, or
+publishing a quote nobody gave, is a trademark and advertising problem as well
+as a credibility one.
+
+---
+
 ## Content rule
 
 Clients, revenue, awards, certifications, partnerships, statistics and case

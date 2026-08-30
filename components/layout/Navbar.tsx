@@ -1,15 +1,22 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight, Menu, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronDown, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/Button";
 import { Logo } from "@/components/ui/Logo";
 import { MagneticButton } from "@/components/ui/MagneticButton";
-import { prefetchFor, primaryCta, primaryNav } from "@/data/navigation";
+import {
+  prefetchFor,
+  primaryCta,
+  primaryNav,
+  servicesMenu,
+  servicesOverview,
+  type NavLink,
+} from "@/data/navigation";
 import { easing, transition } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +25,8 @@ export function Navbar() {
   const reduceMotion = useReducedMotion();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const [servicesOpen, setServicesOpen] = useState(false);
 
   /* The bar has only two states, so a threshold beats tracking scroll offset. */
   useEffect(() => {
@@ -27,22 +36,46 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  /* While the panel is open it behaves as a modal surface: the rest of the
+     document is made inert so keyboard and screen-reader users cannot reach
+     content sitting behind an opaque overlay, and focus is moved into the
+     panel. The header stays reachable — it holds the close button. */
   useEffect(() => {
     if (!menuOpen) return;
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
+    const outside = [document.querySelector("main"), document.querySelector("footer")];
+    for (const el of outside) el?.setAttribute("inert", "");
+
+    /* The panel is committed in the same render as this effect, so it can be
+       focused directly — no animation frame, which would never fire if the tab
+       were backgrounded at the moment the menu opened. */
+    document.querySelector<HTMLElement>("#mobile-navigation a")?.focus();
+
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMenuOpen(false);
+      if (event.key !== "Escape") return;
+      setMenuOpen(false);
+      toggleRef.current?.focus();
     };
     window.addEventListener("keydown", onKeyDown);
 
     return () => {
       document.body.style.overflow = previousOverflow;
+      for (const el of outside) el?.removeAttribute("inert");
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+    if (!servicesOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setServicesOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [servicesOpen]);
 
   const isActive = (href: string) =>
     pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
@@ -50,10 +83,11 @@ export function Navbar() {
   return (
     <>
       <header
+        onMouseLeave={() => setServicesOpen(false)}
         className={cn(
           "fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter]",
           "duration-[var(--duration-base)] ease-[var(--ease-precise)]",
-          scrolled || menuOpen
+          scrolled || menuOpen || servicesOpen
             ? "border-b border-border bg-background/72 backdrop-blur-xl"
             : "border-b border-transparent bg-transparent",
         )}
@@ -67,31 +101,46 @@ export function Navbar() {
 
             {/* Desktop navigation -------------------------------------------- */}
             <ul className="hidden items-center gap-1 lg:flex">
-              {primaryNav.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    prefetch={prefetchFor(item.href)}
-                    aria-current={isActive(item.href) ? "page" : undefined}
-                    className={cn(
-                      "group relative inline-flex h-9 items-center rounded-md px-3.5 text-sm",
-                      "transition-colors duration-[var(--duration-fast)] ease-[var(--ease-precise)]",
-                      isActive(item.href) ? "text-foreground" : "text-muted hover:text-foreground",
-                    )}
-                  >
-                    {item.label}
-                    {/* Hairline that draws in from the left on hover. */}
-                    <span
-                      aria-hidden
+              {primaryNav.map((item) =>
+                item.href === servicesOverview.href ? (
+                  <li key={item.href} onMouseEnter={() => setServicesOpen(true)}>
+                    <button
+                      type="button"
+                      aria-expanded={servicesOpen}
+                      aria-controls="services-menu"
+                      onClick={() => setServicesOpen((open) => !open)}
                       className={cn(
-                        "absolute inset-x-3.5 bottom-1 h-px origin-left bg-[image:var(--gradient-brand)]",
-                        "transition-transform duration-[var(--duration-base)] ease-[var(--ease-precise)]",
-                        isActive(item.href) ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100",
+                        navItemClass,
+                        "transition-colors duration-[var(--duration-fast)] ease-[var(--ease-precise)]",
+                        "focus-visible:outline-offset-4",
+                        isActive(item.href) || servicesOpen ? "text-foreground" : "text-muted",
+                        "hover:text-foreground",
                       )}
-                    />
-                  </Link>
-                </li>
-              ))}
+                    >
+                      {item.label}
+                      <ChevronDown
+                        aria-hidden
+                        className={cn(
+                          "ml-1.5 size-3 transition-transform duration-[var(--duration-fast)] ease-[var(--ease-precise)]",
+                          servicesOpen && "rotate-180",
+                        )}
+                      />
+                      <span
+                        aria-hidden
+                        className={cn(
+                          "absolute inset-x-3.5 bottom-1 h-px origin-left bg-[image:var(--gradient-brand)]",
+                          "transition-transform duration-[var(--duration-base)] ease-[var(--ease-precise)]",
+                          isActive(item.href) || servicesOpen ? "scale-x-100" : "scale-x-0",
+                        )}
+                      />
+                    </button>
+                  </li>
+                ) : (
+                  <li key={item.href} onMouseEnter={() => setServicesOpen(false)}>
+                    <DesktopNavItem item={item} active={isActive(item.href)} />
+                  </li>
+                ),
+              )}
             </ul>
 
             {/* Actions -------------------------------------------------------- */}
@@ -113,10 +162,10 @@ export function Navbar() {
               </MagneticButton>
 
               <button
+                ref={toggleRef}
                 type="button"
                 onClick={() => setMenuOpen((open) => !open)}
                 aria-expanded={menuOpen}
-                aria-controls="mobile-navigation"
                 aria-label={menuOpen ? "Close menu" : "Open menu"}
                 className="inline-flex size-10 items-center justify-center rounded-md border border-border text-foreground transition-colors duration-[var(--duration-fast)] hover:border-border-strong hover:bg-surface-elevated lg:hidden"
               >
@@ -126,7 +175,65 @@ export function Navbar() {
           </nav>
         </Container>
 
-        {/* Bottom hairline — only present once the bar has a background. */}
+          <div
+          id="services-menu"
+          inert={!servicesOpen}
+          className={cn(
+            "absolute inset-x-0 top-full hidden border-b border-border lg:block",
+            "bg-background/95 backdrop-blur-xl",
+            "transition-[opacity,transform] duration-[var(--duration-base)] ease-[var(--ease-precise)]",
+            servicesOpen
+              ? "translate-y-0 opacity-100"
+              : "pointer-events-none -translate-y-2 opacity-0",
+          )}
+        >
+          <Container>
+            <div className="grid grid-cols-3 gap-x-10 gap-y-px py-10">
+              {servicesMenu.map((entry) => (
+                <Link
+                  key={entry.href}
+                  href={entry.href}
+                  prefetch={prefetchFor(entry.href)}
+                  onClick={() => setServicesOpen(false)}
+                  className="group/item rounded-md px-3 py-4 transition-colors duration-[var(--duration-fast)] ease-[var(--ease-precise)] hover:bg-surface focus-visible:outline-offset-2"
+                >
+                  <span className="flex items-baseline justify-between gap-3">
+                    <span className="text-[0.9375rem] text-muted-strong transition-colors group-hover/item:text-foreground">
+                      {entry.label}
+                    </span>
+                    <ArrowRight
+                      aria-hidden
+                      className="size-3.5 shrink-0 translate-y-px text-faint transition-[color,transform] duration-[var(--duration-fast)] group-hover/item:translate-x-0.5 group-hover/item:text-accent"
+                    />
+                  </span>
+                  {entry.description && (
+                    <span className="mt-1.5 block max-w-[24rem] text-[0.8125rem] leading-relaxed text-muted">
+                      {entry.description}
+                    </span>
+                  )}
+                </Link>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-between border-t border-border py-5">
+              <span className="label-mono">Six capabilities, one engineering practice</span>
+              <Link
+                href={servicesOverview.href}
+                prefetch={prefetchFor(servicesOverview.href)}
+                onClick={() => setServicesOpen(false)}
+                className="group/all inline-flex items-center gap-2 py-1 text-[0.875rem] text-muted transition-colors duration-[var(--duration-fast)] hover:text-foreground"
+              >
+                {servicesOverview.label}
+                <ArrowRight
+                  aria-hidden
+                  className="size-3.5 transition-transform duration-[var(--duration-fast)] group-hover/all:translate-x-0.5"
+                />
+              </Link>
+            </div>
+          </Container>
+        </div>
+
+      {/* Bottom hairline — only present once the bar has a background. */}
         <div
           aria-hidden
           className={cn(
@@ -145,6 +252,79 @@ export function Navbar() {
         isActive={isActive}
         onNavigate={() => setMenuOpen(false)}
       />
+    </>
+  );
+}
+
+const navItemClass =
+  "group relative inline-flex h-9 items-center rounded-md px-3.5 text-sm";
+
+/**
+ * Unbuilt destinations stay in the bar so the IA is visible, but they are not
+ * links. Same type, size and colour as an inactive item — no hover hairline,
+ * no navigation, not in the tab order.
+ */
+function DesktopNavItem({ item, active }: { item: NavLink; active: boolean }) {
+  const available = item.built !== false;
+  const labelClass = cn(
+    navItemClass,
+    "transition-colors duration-[var(--duration-fast)] ease-[var(--ease-precise)]",
+    available && "focus-visible:outline-offset-4",
+    active ? "text-foreground" : "text-muted",
+    available && !active && "hover:text-foreground",
+    !available && "cursor-default",
+  );
+
+  const hairline = (
+    <span
+      aria-hidden
+      className={cn(
+        "absolute inset-x-3.5 bottom-1 h-px origin-left bg-[image:var(--gradient-brand)]",
+        "transition-transform duration-[var(--duration-base)] ease-[var(--ease-precise)]",
+        active ? "scale-x-100" : available ? "scale-x-0 group-hover:scale-x-100" : "scale-x-0",
+      )}
+    />
+  );
+
+  if (!available) {
+    return (
+      <span aria-disabled="true" className={labelClass}>
+        {item.label}
+        {hairline}
+      </span>
+    );
+  }
+
+  return (
+    <Link
+      href={item.href}
+      prefetch={prefetchFor(item.href)}
+      aria-current={active ? "page" : undefined}
+      className={labelClass}
+    >
+      {item.label}
+      {hairline}
+    </Link>
+  );
+}
+
+function MobileNavLabel({
+  item,
+  index,
+  active,
+}: {
+  item: NavLink;
+  index: number;
+  active: boolean;
+}) {
+  return (
+    <>
+      <span className="label-mono w-6 shrink-0" data-numeric>
+        {String(index + 1).padStart(2, "0")}
+      </span>
+      <span className={cn("text-h3", active ? "text-foreground" : "text-muted-strong")}>
+        {item.label}
+      </span>
     </>
   );
 }
@@ -192,25 +372,43 @@ function MobileMenu({
                     transition={{ duration: 0.4, delay: 0.04 * index, ease: easing.flow }}
                     className="border-b border-border"
                   >
-                    <Link
-                      href={item.href}
-                      prefetch={prefetchFor(item.href)}
-                      aria-current={isActive(item.href) ? "page" : undefined}
-                      onClick={onNavigate}
-                      className="flex items-baseline gap-4 py-5"
-                    >
-                      <span className="label-mono w-6 shrink-0" data-numeric>
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-                      <span
-                        className={cn(
-                          "text-h3",
-                          isActive(item.href) ? "text-foreground" : "text-muted-strong",
-                        )}
+                    {item.built !== false ? (
+                      <Link
+                        href={item.href}
+                        prefetch={prefetchFor(item.href)}
+                        aria-current={isActive(item.href) ? "page" : undefined}
+                        onClick={onNavigate}
+                        className="flex items-baseline gap-4 py-5 focus-visible:outline-offset-4"
                       >
-                        {item.label}
+                        <MobileNavLabel item={item} index={index} active={isActive(item.href)} />
+                      </Link>
+                    ) : (
+                      <span
+                        aria-disabled="true"
+                        className="flex cursor-default items-baseline gap-4 py-5"
+                      >
+                        <MobileNavLabel item={item} index={index} active={false} />
                       </span>
-                    </Link>
+                    )}
+
+                    {/* The capability pages are reachable on phones too — the
+                        depth of the site should not be desktop-only. */}
+                    {item.href === servicesOverview.href && (
+                      <ul className="mb-5 ml-10 flex flex-col border-l border-border pl-5">
+                        {servicesMenu.map((entry) => (
+                          <li key={entry.href}>
+                            <Link
+                              href={entry.href}
+                              prefetch={prefetchFor(entry.href)}
+                              onClick={onNavigate}
+                              className="block py-2 text-[0.9375rem] text-muted transition-colors duration-[var(--duration-fast)] hover:text-foreground focus-visible:outline-offset-4"
+                            >
+                              {entry.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </motion.li>
                 ))}
               </ul>

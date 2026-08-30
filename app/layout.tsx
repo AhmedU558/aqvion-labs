@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
+import { HashScroll } from "@/components/ui/HashScroll";
 import { brandAssets, siteConfig } from "@/data/site";
 import { fontVariables } from "@/lib/fonts";
 import "./globals.css";
@@ -128,6 +129,7 @@ if(!seen)document.documentElement.setAttribute('data-hero-intro','run')
         </a>
 
         <Navbar />
+        <HashScroll />
 
         {/* The navbar is fixed, so the document flow is offset here rather than
             inside every page. */}

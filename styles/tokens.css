@@ -4,7 +4,7 @@
    Single source of truth for the visual system.
 
    Every palette value below is sampled directly from the official AQVION mark
-   (public/brand/aqvion-mark.png) so the interface and the logo share one
+   (brand-reference/aqvion-mark-master.png) so the interface and the logo share one
    colour space. Do not introduce ad-hoc hex values in components.
 
    Tailwind v4 reads the `@theme` block and generates both the utility classes
@@ -27,7 +27,11 @@
   --color-foreground: #f2f5fa;
   --color-muted: #8b95a9;
   --color-muted-strong: #b4bdcd;
-  --color-faint: #5a6478;
+  /* Lightened from #5A6478, which measured 3.40:1 on the background and
+     3.22:1 on surface — below the 4.5:1 AA minimum for normal-size text.
+     This token carries real information (eyebrows, tags, status, footer
+     labels), so it cannot rely on the large-text exemption. */
+  --color-faint: #6f7b94;
 
   /* Metallic silver — the extruded "A" in the mark.                          */
   --color-silver: #c9d0dd;

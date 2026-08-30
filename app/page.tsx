@@ -1,22 +1,31 @@
-import { Container } from "@/components/layout/Container";
 import { Hero } from "@/components/sections/Hero";
+import { Industries } from "@/components/sections/Industries";
+import { Process } from "@/components/sections/Process";
+import { Solutions } from "@/components/sections/Solutions";
+import { Technology } from "@/components/sections/Technology";
+import { Cta } from "@/components/sections/Cta";
+import { Testimonials } from "@/components/sections/Testimonials";
+import { Work } from "@/components/sections/Work";
 
 export default function HomePage() {
   return (
     <>
       <Hero />
 
-      {/* Scaffold. The scroll cue needs somewhere to land, and the hero's
-          scroll-away behaviour needs something to scroll against. Solutions,
-          Industries, Work, About, Insights and Contact are not built yet. */}
-      <section id="beyond-the-hero" className="relative border-t border-border py-24">
-        <Container>
-          <p className="label-mono">Next</p>
-          <p className="mt-5 max-w-2xl text-lead text-muted">
-            The homepage sections land here. Nothing beyond the hero has been built yet.
-          </p>
-        </Container>
-      </section>
+      {/* The hero's scroll cue targets #beyond-the-hero. Keeping the anchor here
+          lands it on Solutions without editing the approved hero; once the cue
+          is retargeted to #solutions this line goes away.
+
+          Approach, Insights, Company and legal pages are not built yet. */}
+      <div id="beyond-the-hero" />
+
+      <Solutions />
+      <Process />
+      <Technology />
+      <Industries />
+      <Work />
+      <Testimonials />
+      <Cta />
     </>
   );
 }
