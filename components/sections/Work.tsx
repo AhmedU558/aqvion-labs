@@ -1,7 +1,7 @@
 import { Container } from "@/components/layout/Container";
-import { WorkIndex } from "@/components/sections/WorkIndex";
+import { CaseStudyCarousel } from "@/components/sections/CaseStudyCarousel";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { workIntro } from "@/data/work";
+import { caseStudyIntro } from "@/data/proof";
 
 /**
  * Selected work.
@@ -15,18 +15,18 @@ export function Work() {
   return (
     <section
       id="work"
-      aria-label={workIntro.eyebrow}
+      aria-label={caseStudyIntro.eyebrow}
       className="relative border-t border-border pt-[var(--spacing-section-sm)] pb-16 md:pt-[var(--spacing-section)] md:pb-20"
     >
       <Container>
         <SectionHeading
-          index={workIntro.index}
-          eyebrow={workIntro.eyebrow}
-          title={workIntro.title}
-          description={workIntro.description}
+          index={caseStudyIntro.index}
+          eyebrow={caseStudyIntro.eyebrow}
+          title={caseStudyIntro.title}
+          description={caseStudyIntro.description}
         />
 
-        <WorkIndex />
+        <CaseStudyCarousel />
       </Container>
     </section>
   );

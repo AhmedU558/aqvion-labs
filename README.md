@@ -214,6 +214,55 @@ read and approved or rewritten.
 
 ---
 
+## Interaction patterns
+
+Adapted from a reference site the client supplied, rebuilt in this design system
+rather than copied. All four are transform/opacity only, so none of them costs a
+repaint.
+
+| Pattern | Where | Notes |
+|---|---|---|
+| **Reveal card** | Solutions, Industries | `RevealCard` + `styles/cards.css`. Detail expands via `grid-template-rows: 0fr → 1fr` inside a fixed-height card, so a row never reflows. Driven by `:hover` **and** `:focus-within`, so keyboard gets the same reveal. Under `(hover: none)` the detail is simply always open — nothing is hidden behind an interaction a phone cannot perform. |
+| **Case-study carousel** | Homepage Work | `CaseStudyCarousel`. Manual advance only — no auto-rotation, which is the most common carousel accessibility failure. Slide region is a polite live region. |
+| **Client marquee** | Homepage | `ClientMarquee`. One transform on a doubled track translated `-50%`, so the loop is seamless. Pauses on hover; becomes a static wrapped row under reduced motion. |
+| **Network band** | Closing CTA | `NetworkBand`. Deliberately lighter than the hero field: node count capped, DPR capped at 1.5, loop paused off-screen and on hidden tab, one static frame under reduced motion. |
+
+`RevealCard` has two variants, and the distinction matters:
+
+- **`--link`** (Solutions) has a destination, so it holds its detail back until
+  hover *or keyboard focus*, then opens.
+- **`--static`** (Industries) has none. Nothing can focus it, so nothing is
+  hidden: the detail is always open and the wash sits at a low constant level.
+  Content behind a hover is only reasonable when there is an interaction to
+  perform — otherwise it is information a keyboard user can never reach.
+
+The resting state carries the site's own technical language — a scoped measured
+grid, a corner registration tick, and the capability icon inside an alignment
+ring echoing the hero emblem — so a card is never a title on an empty plate.
+
+### Tuning the hero field
+
+`PULSE_SPEED_SCALE` in `lib/intelligence-field.ts` is one dial for how lively
+the field feels. The per-path `speed` values hold the *relative* rhythm — an
+ingest spine runs quicker than a structural bus — and the scale multiplies all
+of them, so the composition keeps its balance whichever way you move it.
+Currently `1.6`, which puts pulses at roughly 58–116 px/sec on a 1440 viewport.
+
+The drifting nodes in `NetworkBand` (closing CTA) are a separate system with
+their own dial, `DRIFT` — peak px/sec per node, currently `11`. The two are
+tuned together so the band and the hero read as one site.
+
+`min-height` is set from the **open** measurement, not the resting one: the
+tallest revealed card is 374px, so the floor sits at 384px. Reserve less and the
+reveal grows the card and shunts the whole grid row. If the copy ever gets
+longer, re-measure and raise it.
+
+The homepage uses cards; `/services` keeps the ruled index. That is deliberate —
+a homepage is scanned, a services page is read — and it also means the two are no
+longer the same content twice.
+
+---
+
 ## Sample content — must be replaced before launch
 
 `data/proof.ts` holds the case studies, testimonials and company facts. **All of

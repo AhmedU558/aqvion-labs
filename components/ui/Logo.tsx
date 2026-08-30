@@ -61,7 +61,10 @@ export function Logo({
           width={px}
           height={px}
           priority={priority}
-          sizes={`${px}px`}
+          /* No `sizes` on purpose. The mark renders at a fixed pixel size, so
+             next/image builds a plain 1x/2x srcset and the preload matches the
+             candidate the browser then picks. Supplying `sizes` here made the
+             two disagree and produced a "preloaded but not used" warning. */
           className="relative h-full w-full select-none"
         />
       </span>

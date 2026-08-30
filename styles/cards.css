@@ -1,0 +1,425 @@
+/* ==========================================================================
+   AQVION LABS — REVEAL CARD
+   --------------------------------------------------------------------------
+   The detail expands through `grid-template-rows: 0fr → 1fr`, which is the one
+   way to animate an element to its natural height without measuring it in
+   JavaScript. The card carries a fixed minimum height so that expansion never
+   changes the row's height and the cards beside it never move.
+
+   State is driven by `:hover` and `:focus-within` together — a keyboard user
+   tabbing to the card's action gets exactly the same reveal as a pointer.
+   ========================================================================== */
+
+.reveal-card {
+  position: relative;
+  isolation: isolate;
+  display: block;
+  /* Reserve enough room for the *open* state. The tallest card measures 374px
+     when revealed (two-line title plus detail), so the floor sits just above
+     that — otherwise the reveal grows the card and shunts the whole grid row. */
+  min-height: 22rem;
+  padding: 1.75rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  transition:
+    border-color var(--duration-base) var(--ease-precise),
+    transform var(--duration-base) var(--ease-precise);
+}
+
+@media (min-width: 1024px) {
+  .reveal-card {
+    min-height: 24rem;
+    padding: 2rem;
+  }
+}
+
+.reveal-card--link:focus-visible {
+  outline: 2px solid var(--color-primary-bright);
+  outline-offset: 3px;
+}
+
+/* ------------------------------------------------------------------- wash --
+   A restrained diagonal wash rather than a flood fill: the gradient stays an
+   accent even at full reveal, and only ever on the card being pointed at. */
+.reveal-card__wash {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in oklab, var(--color-primary) 26%, transparent) 0%,
+      color-mix(in oklab, var(--color-indigo) 17%, transparent) 45%,
+      color-mix(in oklab, var(--color-secondary) 10%, transparent) 100%
+    ),
+    radial-gradient(
+      120% 90% at 12% 100%,
+      color-mix(in oklab, var(--color-accent) 12%, transparent) 0%,
+      transparent 62%
+    );
+  transition: opacity var(--duration-slow) var(--ease-flow);
+}
+
+/* The top hairline, drawn in from the left to match the ruled sections. */
+.reveal-card__rule {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  z-index: 1;
+  height: 1px;
+  transform: scaleX(0);
+  transform-origin: left;
+  background-image: var(--gradient-brand);
+  transition: transform var(--duration-base) var(--ease-precise);
+}
+
+/* ---------------------------------------------------------------- pattern --
+   A card at rest was previously a title on an empty plate. This is the site's
+   own technical substrate — the same measured grid as the hero field — scoped
+   to the card and masked so it fades away from the type. It dissolves as the
+   wash arrives, so the two never fight. */
+.reveal-card__pattern {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--color-border-strong) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--color-border-strong) 55%, transparent) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: radial-gradient(100% 78% at 50% 30%, #000 0%, rgba(0, 0, 0, 0.35) 55%, transparent 88%);
+  opacity: 0.75;
+  transition: opacity var(--duration-slow) var(--ease-flow);
+}
+
+/* -------------------------------------------------------------- registration
+   A corner tick rather than a second icon: instrumentation, not decoration. */
+.reveal-card__bracket {
+  width: 12px;
+  height: 12px;
+  border-top: 1px solid var(--color-border-strong);
+  border-right: 1px solid var(--color-border-strong);
+  transition: border-color var(--duration-base) var(--ease-precise);
+}
+
+/* ------------------------------------------------------------------ glyph -- */
+.reveal-card__glyph {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  margin-top: 1.5rem;
+  /* Claims the open field so the resting card is composed, not empty. */
+  min-height: 6.5rem;
+  transition:
+    opacity var(--duration-base) var(--ease-precise),
+    transform var(--duration-slow) var(--ease-flow);
+}
+
+/* Alignment ring, echoing the rings drawn around the emblem in the hero. */
+.reveal-card__ring {
+  position: absolute;
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklab, var(--color-primary) 26%, transparent);
+  transition:
+    transform var(--duration-slow) var(--ease-flow),
+    border-color var(--duration-base) var(--ease-precise);
+}
+
+.reveal-card__ring::before {
+  content: "";
+  position: absolute;
+  inset: 0.75rem;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in oklab, var(--color-primary) 20%, transparent) 0%,
+    transparent 70%
+  );
+}
+
+.reveal-card__icon {
+  position: relative;
+  width: 2.25rem;
+  height: 2.25rem;
+  color: var(--color-silver);
+  transition:
+    opacity var(--duration-base) var(--ease-precise),
+    transform var(--duration-base) var(--ease-precise),
+    color var(--duration-base) var(--ease-precise);
+}
+
+/* ----------------------------------------------------------------- detail --
+   Collapsed by default. `grid-template-rows` is animatable; `height: auto` is
+   not, which is the whole reason for the extra wrapper. */
+.reveal-card__detail {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows var(--duration-slow) var(--ease-flow),
+    opacity var(--duration-base) var(--ease-precise);
+}
+
+/* ------------------------------------------------------------------ state -- */
+@media (hover: hover) and (pointer: fine) {
+  .reveal-card:hover,
+  .reveal-card:focus-within {
+    border-color: var(--color-border-glow);
+    transform: translateY(-2px);
+  }
+
+  .reveal-card:hover .reveal-card__wash,
+  .reveal-card:focus-within .reveal-card__wash {
+    opacity: 1;
+  }
+
+  .reveal-card:hover .reveal-card__rule,
+  .reveal-card:focus-within .reveal-card__rule {
+    transform: scaleX(1);
+  }
+
+  .reveal-card:hover .reveal-card__pattern,
+  .reveal-card:focus-within .reveal-card__pattern {
+    opacity: 0.2;
+  }
+
+  .reveal-card:hover .reveal-card__bracket,
+  .reveal-card:focus-within .reveal-card__bracket {
+    border-color: var(--color-accent);
+  }
+
+  /* The glyph collapses rather than merely fading, so the detail has room to
+     open into without the card ever changing height. */
+  .reveal-card--link:hover .reveal-card__glyph,
+  .reveal-card--link:focus-within .reveal-card__glyph {
+    opacity: 0;
+    transform: scale(0.9);
+    min-height: 0;
+    margin-top: 0;
+  }
+
+  .reveal-card:hover .reveal-card__ring,
+  .reveal-card:focus-within .reveal-card__ring {
+    transform: scale(1.15);
+  }
+
+  .reveal-card:hover .reveal-card__detail,
+  .reveal-card:focus-within .reveal-card__detail {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------------- body -- */
+.reveal-card__body {
+  margin-top: auto;
+  padding-top: 2.5rem;
+}
+
+/* ----------------------------------------------------------------- static --
+   A card with no destination cannot be focused, so nothing may be held behind
+   a hover: the detail is open at all times and the wash sits at a low constant
+   level, lifting only slightly on approach. */
+.reveal-card--static {
+  /* Nothing is hidden, so the card need not reserve room for a reveal. The
+     grid stretches every card to the tallest anyway. */
+  min-height: 0;
+}
+
+.reveal-card--static .reveal-card__body {
+  margin-top: 0;
+  padding-top: 1.5rem;
+}
+
+/* Nothing is hidden here, so the glyph is a mark beside the content rather
+   than a placeholder holding an empty field. */
+/* Shrink the mark and pull it to the left edge — but keep the base stacking
+   (ring absolute, icon in flow, both centred by `place-items`). Swapping those
+   two makes the ring an in-flow grid item and drops the icon at the glyph's
+   start corner, which lands it outside the circle. */
+.reveal-card--static .reveal-card__glyph {
+  width: 3.25rem;
+  min-height: 3.25rem;
+  margin-top: 1.25rem;
+}
+
+.reveal-card--static .reveal-card__ring {
+  width: 3.25rem;
+  height: 3.25rem;
+}
+
+.reveal-card--static .reveal-card__ring::before {
+  inset: 0.4rem;
+}
+
+.reveal-card--static .reveal-card__icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.reveal-card--static .reveal-card__detail {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.reveal-card--static .reveal-card__wash {
+  opacity: 0.4;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .reveal-card--static:hover .reveal-card__wash {
+    opacity: 1;
+  }
+
+  /* The icon has nothing to make way for here, so it stays. */
+  .reveal-card--static:hover .reveal-card__icon {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------------ touch --
+   No hover on a phone, so nothing is held back: the detail is open, the wash
+   sits at a low constant level, and the card reads as a complete panel. */
+@media (hover: none), (pointer: coarse) {
+  .reveal-card {
+    min-height: 0;
+  }
+
+  .reveal-card__detail {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .reveal-card__wash {
+    opacity: 0.45;
+  }
+
+  .reveal-card__glyph {
+    width: 3.25rem;
+    min-height: 3.25rem;
+    margin-top: 1.25rem;
+  }
+
+  .reveal-card__ring {
+    width: 3.25rem;
+    height: 3.25rem;
+  }
+
+  .reveal-card__ring::before {
+    inset: 0.4rem;
+  }
+
+  .reveal-card__icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .reveal-card__body {
+    padding-top: 1.5rem;
+  }
+}
+
+/* Reduced motion: the reveal still happens, it just stops travelling. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-card,
+  .reveal-card__wash,
+  .reveal-card__rule,
+  .reveal-card__icon,
+  .reveal-card__glyph,
+  .reveal-card__ring,
+  .reveal-card__pattern,
+  .reveal-card__bracket,
+  .reveal-card__detail {
+    transition: none;
+  }
+
+  .reveal-card:hover,
+  .reveal-card:focus-within {
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   CLIENT MARQUEE
+   --------------------------------------------------------------------------
+   The track holds the list twice and translates by exactly -50%, so the second
+   copy lands where the first began and the loop has no seam. One transform on
+   one element — nothing else moves, and nothing repaints.
+   ========================================================================== */
+
+.marquee {
+  position: relative;
+  overflow: hidden;
+  /* Dissolve at both edges rather than cutting the wordmarks off. */
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 12%,
+    #000 88%,
+    transparent 100%
+  );
+}
+
+.marquee__track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: 4rem;
+  padding-inline: 2rem;
+  animation: marquee-run 48s linear infinite;
+  will-change: transform;
+}
+
+@media (min-width: 768px) {
+  .marquee__track {
+    gap: 6rem;
+  }
+}
+
+.marquee:hover .marquee__track {
+  animation-play-state: paused;
+}
+
+.marquee__item {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  color: var(--color-faint);
+  transition: color var(--duration-base) var(--ease-precise);
+}
+
+.marquee__item:hover {
+  color: var(--color-muted-strong);
+}
+
+@keyframes marquee-run {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* Reduced motion: the band stops and simply reads as a row. */
+@media (prefers-reduced-motion: reduce) {
+  .marquee__track {
+    animation: none;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+    gap: 1.5rem 3rem;
+    will-change: auto;
+  }
+
+  .marquee {
+    mask-image: none;
+  }
+}

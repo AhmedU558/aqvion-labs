@@ -1,5 +1,5 @@
 import { Container } from "@/components/layout/Container";
-import { IndustrySelector } from "@/components/sections/IndustrySelector";
+import { IndustryCards } from "@/components/sections/IndustryCards";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { industriesIntro } from "@/data/industries";
 
@@ -29,7 +29,7 @@ export function Industries() {
           description={industriesIntro.description}
         />
 
-        <IndustrySelector />
+        <IndustryCards />
       </Container>
     </section>
   );

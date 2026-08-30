@@ -2,6 +2,7 @@ import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/Button";
 import { MagneticButton } from "@/components/ui/MagneticButton";
+import { NetworkBand } from "@/components/ui/NetworkBand";
 import { Reveal } from "@/components/ui/Reveal";
 import { ctaActions, ctaIntro } from "@/data/cta";
 import { prefetchFor } from "@/data/navigation";
@@ -23,9 +24,18 @@ export function Cta() {
     <section
       id="lets-build"
       aria-labelledby="cta-title"
-      className="relative border-t border-border pt-16 pb-[var(--spacing-section-sm)] md:pt-20 md:pb-[var(--spacing-section)]"
+      className="relative isolate overflow-hidden border-t border-border pt-16 pb-[var(--spacing-section-sm)] md:pt-20 md:pb-[var(--spacing-section)]"
     >
-      <Container>
+      {/* Atmosphere only — masked so the mesh dissolves before it reaches the
+          type, and never competes with the closing statement. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(80%_70%_at_70%_50%,#000_0%,transparent_75%)]"
+      >
+        <NetworkBand />
+      </div>
+
+      <Container className="relative">
         <Reveal y={12}>
           <div className="flex items-center gap-3">
             <span className="label-mono text-primary-bright" data-numeric>

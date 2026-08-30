@@ -1,5 +1,5 @@
 import { Container } from "@/components/layout/Container";
-import { CapabilityIndex } from "@/components/sections/CapabilityIndex";
+import { CapabilityCards } from "@/components/sections/CapabilityCards";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { solutionsIntro } from "@/data/solutions";
 
@@ -29,7 +29,7 @@ export function Solutions() {
           description={solutionsIntro.description}
         />
 
-        <CapabilityIndex />
+        <CapabilityCards />
       </Container>
     </section>
   );

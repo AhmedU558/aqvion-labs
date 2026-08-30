@@ -30,7 +30,11 @@ const organizationJsonLd = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: "AQVION LABS — AI, Automation & Software Engineering",
+    /* Just the name. A browser tab shows roughly 25 characters, so any
+       positioning appended here only ever arrived truncated. The keywords live
+       in the description and the social titles below, which have the room for
+       them. */
+    default: "AQVION LABS",
     /* Inner pages supply only their own name. */
     template: "%s — AQVION LABS",
   },

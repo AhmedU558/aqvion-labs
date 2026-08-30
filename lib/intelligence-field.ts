@@ -14,6 +14,16 @@
 
 export type Vec2 = [number, number];
 
+/**
+ * Global multiplier on every pulse speed.
+ *
+ * The per-path `speed` values below hold the *relative* rhythm — an ingest
+ * spine runs quicker than a structural bus — and this scales all of them at
+ * once. Raise it to make the field livelier, lower it to calm it down; the
+ * composition keeps its internal balance either way.
+ */
+export const PULSE_SPEED_SCALE = 1.6;
+
 /** Rings, in emblem-radius units. */
 export const RING_INNER = 1.24;
 export const RING_MID = 1.72;
@@ -364,7 +374,7 @@ export function buildField(
       flow: spec.flow,
       intensity: spec.intensity ?? 1,
       pulses: spec.pulses ?? 1,
-      speed: (spec.speed ?? 0.42) * r,
+      speed: (spec.speed ?? 0.42) * PULSE_SPEED_SCALE * r,
     });
 
     /* Interior vertices are junctions; the docked end is a terminal. */

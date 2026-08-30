@@ -180,8 +180,31 @@ export type CompanyFact = {
  * the single easiest way for a site like this to lose credibility.
  */
 export const companyFacts: CompanyFact[] = [
-  { value: "2019", label: "Founded" },
-  { value: "40+", label: "Systems delivered" },
-  { value: "9", label: "Countries served" },
-  { value: "24", label: "Engineers" },
+  { value: "2026", label: "Founded" },
+  { value: "10", label: "Systems delivered" },
+  { value: "4", label: "Countries served" },
+  { value: "12", label: "Engineers" },
 ];
+
+/* ────────────────────────────────────────────────────────────── client band */
+
+/**
+ * The scrolling client band.
+ *
+ * Real client logos need both the artwork and written permission to display it,
+ * so this carries the same fictional organisations as the case studies above,
+ * set as wordmarks. Replace with real marks — as images, in `public/clients/` —
+ * once permission is in hand.
+ */
+export const clientBand = {
+  eyebrow: "Working with",
+  names: [
+    "Contoso Financial",
+    "Northwind Logistics",
+    "Fabrikam Health",
+    "Litware Retail",
+    "Tailwind Traders",
+    "Adventure Works",
+    "Wide World Importers",
+  ],
+} as const;

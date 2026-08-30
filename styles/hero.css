@@ -15,12 +15,16 @@
 /* --------------------------------------------------------------- headline -- */
 
 .hero-headline {
-  font-size: clamp(2.5rem, 1.4rem + 4.4vw, 4.5rem);
-  line-height: 1.04;
-  letter-spacing: -0.038em;
+  /* Capped at 60px, not 72px. At 72 the headline ran four very tall lines and
+     took roughly a third of the viewport on a wide screen — confident had
+     tipped into shouting. Smaller type on a wider measure gives fewer, longer
+     lines and lets the composition breathe. */
+  font-size: clamp(2.25rem, 1.15rem + 3.5vw, 3.75rem);
+  line-height: 1.06;
+  letter-spacing: -0.035em;
   font-weight: 500;
   /* Measured in em, so the line structure holds as the type scales. */
-  max-width: 9.7em;
+  max-width: 12.5em;
   text-wrap: pretty;
 }
 
@@ -28,7 +32,7 @@
    steps down to hold the headline at four lines instead of six. */
 @media (min-width: 1024px) and (max-width: 1279px) {
   .hero-headline {
-    font-size: clamp(2.75rem, 5.9vw, 3.75rem);
+    font-size: clamp(2.5rem, 5.2vw, 3.25rem);
   }
 }
 
@@ -287,9 +291,12 @@
 
 @media (max-width: 640px) and (max-height: 740px) {
   .hero-field__emblem {
-    width: 96px;
+    /* 88px, not 96: at 375x667 the taller mark reached 1px into the bottom of
+       the secondary button, and that button is translucent — any overlap shows
+       through as a blurred smudge. This keeps ~10px of clearance. */
+    width: 88px;
     right: 4%;
-    bottom: 2%;
+    bottom: 1.5%;
   }
 }
 

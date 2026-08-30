@@ -10,7 +10,8 @@
 
 ## Resolution status — updated 2026-08-30
 
-All findings addressed except QA-08, which is folded into the site-expansion work.
+All fourteen findings are addressed. See **Round two** below for the issues found in the
+interaction-pattern work that followed.
 
 | ID | Severity | Status | Verified by |
 |---|---|---|---|
@@ -21,10 +22,10 @@ All findings addressed except QA-08, which is folded into the site-expansion wor
 | QA-05 | Medium | **Fixed** | Arrow icon and hover affordances removed from Work rows |
 | QA-06 | Medium | **Fixed** | Unbuilt routes render as `[SOON]` text, not links |
 | QA-07 | Medium | **Fixed** | `public/` 2.5 MB → 360 KB; masters return 404 |
-| QA-08 | Medium | *Deferred* | Requires new page content — part of the site-expansion phase |
+| QA-08 | Medium | **Fixed** | Homepage uses `CapabilityCards`, `/services` keeps `CapabilityIndex` — the two pages are no longer the same content |
 | QA-09 | Low | **Fixed** | 404 title is now "Page not found — AQVION LABS", `noindex` |
 | QA-10 | Low | **Fixed** | `aria-controls` removed; 0 occurrences across all routes |
-| QA-11 | Low | **Partly fixed** | Commit-on-focus removed. `aria-pressed` semantics and the mobile no-op highlight accepted as-is |
+| QA-11 | Low | **Moot** | Commit-on-focus was removed; `IndustrySelector` has since been replaced by `IndustryCards` and deleted, so the component this finding described no longer exists |
 | QA-12 | Low | **Fixed** | Notice rendered above the form fields |
 | QA-13 | Low | **Fixed** | Document overflow at 1024 resolved by QA-01 (scrollWidth now equals clientWidth) |
 | QA-14 | Low | **Fixed** | Footer links padded to clear the 24px minimum |
@@ -32,23 +33,50 @@ All findings addressed except QA-08, which is folded into the site-expansion wor
 Re-verified after the fixes: `tsc` clean, ESLint clean, production build clean across 15 routes,
 no console errors, no heading skips, no clipped content at any tested width.
 
-One pre-existing warning remains (not introduced by these fixes and not previously reported):
-Next.js preloads the navbar logo at `w=48` and the browser then selects a different candidate,
-producing an "preloaded but not used" console warning. Cosmetic; worth tuning the `sizes`
-attribute on the navbar `Logo` at some point.
+One pre-existing warning was noted at this point and left open: Next.js preloaded the navbar
+logo at `w=48` while the browser selected a different candidate, producing a "preloaded but not
+used" console warning. It is fixed in round two as QA-17.
+
+---
+
+## Round two — 2026-08-30, after the interaction-pattern work
+
+Four reference patterns were added (reveal cards, case-study carousel, client
+marquee, network band). That new surface was audited in turn; three issues were
+found and fixed, and one earlier note was closed.
+
+| ID | Severity | Finding | Resolution |
+|---|---|---|---|
+| QA-15 | Medium | Industry cards held their description behind `:hover`, but rendered as `<article>` — not focusable. A sighted keyboard user could never read them. | `RevealCard` now renders `--static` when it has no `href`: detail always open, wash at a low constant level. Verified: static cards read `opacity: 1`, `rows: 105px` at rest. |
+| QA-16 | Low | Four files became unreachable when Solutions and Industries moved to cards: `IndustrySelector.tsx`, `WorkIndex.tsx`, `WorkField.tsx`, `data/work.ts`. | Removed. Import-reachability trace from the app routes now reports zero unreachable files. All four remain in git history. |
+| QA-17 | Low | The navbar logo carried `sizes` despite rendering at a fixed pixel size, so the preload and the browser's chosen candidate disagreed — the "preloaded but not used" warning noted in round one. | `sizes` removed; a fixed-size image gets a plain 1x/2x srcset. Console is now completely silent on every route. |
+| — | — | Static card titles did not line up across a row, because content was bottom-anchored for a reveal that no longer happens. | Static variant anchors content to the top. Verified: the three titles in row one now share a single Y position. |
+
+**Verified after round two:** `tsc` clean · ESLint clean · production build clean ·
+no console output · link cards still reveal on keyboard focus (`0px → 151px → 0px`) ·
+no user-facing horizontal scroll at 1440 / 1024 / 768 / 375.
+
+One measurement note for whoever runs this next: the browser harness reports
+`window.innerWidth` as 486 while `documentElement.clientWidth` is 375, so fixed
+elements measure 486 and a naive overflow check reports a false positive at that
+width. `window.scrollX` after a scroll attempt is the reliable test — it stays 0.
 
 ---
 
 ## Verdict
 
-| Severity | Count |
+*Superseded — see the resolution table above. Retained for the record of what
+was originally found.*
+
+| Severity | Count (as first reported) |
 |---|---|
 | High | 2 |
 | Medium | 6 |
 | Low | 6 |
 | **Blocking** | **0** |
 
-**Recommendation: ship after fixing QA-01 and QA-02.**
+**Original recommendation: ship after fixing QA-01 and QA-02.** Both are now
+fixed, along with every other finding.
 
 The build is structurally sound — it type-checks, lints and builds clean, produces no console
 output or failed requests in production, and holds the project's content rule completely: across
